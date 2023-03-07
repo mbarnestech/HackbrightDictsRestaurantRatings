@@ -1,143 +1,148 @@
 """Restaurant rating lister."""
 
-
 # import the sys module
 
 import sys
 
-from random import choice 
-
-# assign the open file to a variable
+# assign the file name to a variable
 
 filename = sys.argv[1]
 
+# create empty ratings dictionary
+ratings = {}
+
 # define function to read file and return dictionary
-def file_to_dict(filename):
-    
-    """ This function reads the file and gives the ratings in the dict format
+def create_ratings_dict(filename):
+    """ reads file, returns dict of restaurant name : rating """    
 
-        Input is filename
-        return the rating in the dict """
+    #open file
+    with open(filename) as file:
 
-    with open(filename) as lines:
+        # go through each line
+        for line in file:
 
-        ratings = {}
-
-        for line in lines:
-
+            # split line at colon to get restaurant and rating
             restaurant, rating = line.rstrip().rsplit(':')
+
+            # make restaurant: rating a key value pair in the ratings dict
             ratings[restaurant] = int(rating)
 
     return ratings
 
+# create ratings as universal dictionary
+ratings = create_ratings_dict(filename)
 
-def print_rest_ratings(ratings):
 
+def print_ratings():
+    """ print current ratings alphabetically by restaurant """
+
+    # iterate through each restaurant:rating pair
     for restaurant, rating in sorted(ratings.items()):
 
+        # print statement regarding rating of restaurant
         print(f"{restaurant} is rated at {rating}")
 
+    # return None
     return
 
 
-def get_new_rating(ratings):
+def change_rating(restaurant):
+    """change rating for a given restaurant"""
+
+    # create while loop to validate data
+    while True: 
+
+        rating = input(f'What score do you want to give {restaurant}? ')
+
+        if not rating.isdigit():
+            print('Rating must be an integer between 1 and 5')
+
+        elif 1 <= int(rating) <= 5:
+
+            # update restaurant key in ratings dict with new rating
+            ratings[restaurant] = rating
+
+            # exit function
+            return
+        
+        else:
+            print('Rating must be an integer between 1 and 5')
+        
+
+
+        
+
+def rate_restaurant():
+    """ Rate a specific restaurant """
 
     restaurant = input("What restaurant do you want to rate? ")
 
-    while True:
+    if restaurant in ratings:
+
+        proceed = input(f'{restaurant} is already rated. Do you wish to change the rating? Y/N: ')
         
-        try:    
-            rating = int(input("What score do you want to give it? (integer, 1-5) "))
-            if 1 <= rating <= 5:
-                break
-            # raise error
-            # else:
-            #     raise 'incorrect' **why doesn't this work?**
+        if proceed.lower()[0] == 'n':
 
-        except ValueError or not 1 <= rating <= 5:
+            print('OK, this request has been cancelled.')
+            
+            return
 
-            print("Enter an integer value between 1 and 5")
-
-    ratings[restaurant] = rating
-
-    print_rest_ratings(ratings)
+    change_rating(restaurant)
 
     return
 
+def rate_random_restaurant():
+    """ Rate a random restaurant"""
 
-def update_random_rating(ratings):
+    # only import choice from random here; not needed if this function isn't called
+    from random import choice 
 
     chosen_restaurant = choice(list(ratings))
 
-    print(f'The restaurant is {chosen_restaurant} and the current rating is {ratings[chosen_restaurant]}')
+    change_rating(chosen_restaurant)
 
-    ratings[chosen_restaurant] = int(input("What do you want the new rating to be?: "))
+    return
 
-    print(f'The new rating for {chosen_restaurant} is {ratings[chosen_restaurant]}')
-    return ratings
-
-def update_specific_rating(ratings):
+def help_user():
+    """prints choices"""
     
-    restaurant = input("What restaurant do you want to update? ")
-
-    print(f'The restaurant is {restaurant} and the current rating is {ratings[restaurant]}')
-
-    new_rating = int(input(f"What is your updated rating for the restaurant {restaurant}"))
-
-    if restaurant in ratings:
-    
-        ratings[restaurant] = new_rating
-        print_rest_ratings(ratings)
-    
-    else:
-
-        print("The restaurant is not in the list , Do you want to add")
-        get_new_rating(ratings)
+    print('Your choices are:')
+    print('1: See the ratings in alphabetical order')
+    print('2: Add or update restaurant rating')
+    print('3: Update a random restaurant rating')
+    print('4: Quit')
+    print('Help: Print this list again')
     
     return
 
-
 def let_user_choose():
-    print('Your choices are:')
-    print('(1) See the ratings in alphabetical order')
-    print('(2) Add a new restaurant rating')
-    print('(3) Update a random restaurant rating')
-    print('(4) Update a specific restaurant rating')
-    print('(5) Quit')
+    """ Let user navigate program """
+    
+    help_user()
     
     while True:
-        choice = int(input("Choose 1, 2, 3, 4, or 5: "))
-        ratings = file_to_dict(filename)
+        choice = int(input("Choose 1, 2, 3, 4, or Help: "))
+        
         if choice == 1:
-            # see ratings
-            #ratings = file_to_dict(filename)
-            print_rest_ratings(ratings)
+            print_ratings()
+
         elif choice == 2:
-            #ratings = file_to_dict(filename)
-            get_new_rating(ratings)
+            rate_restaurant()
 
         elif choice == 3:
-            update_random_rating(ratings)
+            rate_random_restaurant()
             
         elif choice == 4:
-            update_specific_rating(ratings)
-            
-        elif choice == 5:
             # quit
             return
+        
+        elif choice[0].lower() == 'h':
+            help_user()
+
         else: 
-            print('I\'m sorry, you need to choose 1, 2, or 3.')
+            print('I\'m sorry, that is not a valid option.')
+
 
 let_user_choose()
 
-# create function to store ratings in a dictionary
 
-# rest_ratings = file_to_dict(filename)
-
-# print the ratings in alphabetical order by restaurant
-
-# print_rest_ratings(rest_ratings)
-
-# prompt input from user
-
-# get_new_rating(rest_ratings)
